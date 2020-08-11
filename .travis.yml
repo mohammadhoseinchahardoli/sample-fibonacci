@@ -1,0 +1,31 @@
+language: generic
+sudo: required
+services:
+  - docker
+
+env:
+  global:
+    - GIT_SHA=$(git rev-parse HEAD)
+
+before_install:
+  - docker build -t chahardoli/fibo-frontend:test -f ./frontend/Dockerfile.dev ./frontend
+
+scripts:
+  - docker run -e CI=true chahardoli/fibo-frontend:test npm test
+
+after_success:
+  - docker build -t chahardoli/fibo-backend:latest -t chahardoli/fibo-backend:$GIT_SHA -f ./backend/Dockerfile ./backend
+  - docker build -t chahardoli/fibo-worker:latest -t chahardoli/fibo-worker:$GIT_SHA -f ./worker/Dockerfile ./worker
+  - docker build -t chahardoli/fibo-frontend:latest -t chahardoli/fibo-frontend:$GIT_SHA -f ./frontend/Dockerfile ./frontend
+  - docker build -t chahardoli/fibo-nginx:latest -t chahardoli/fibo-nginx:$GIT_SHA -f ./nginx/Dockerfile ./nginx
+
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+  - docker push chahardoli/fibo-frontend:latest
+  - docker push chahardoli/fibo-frontend:$GIT_SHA
+  - docker push chahardoli/fibo-backend:latest
+  - docker push chahardoli/fibo-backend:$GIT_SHA
+  - docker push chahardoli/fibo-worker:latest
+  - docker push chahardoli/fibo-worker:$GIT_SHA
+  - docker push chahardoli/fibo-nginx:latest
+  - docker push chahardoli/fibo-nginx:$GIT_SHA
