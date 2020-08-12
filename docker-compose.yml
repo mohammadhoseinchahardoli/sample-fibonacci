@@ -12,9 +12,7 @@ services:
       - --loglevel warning
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: chahardoli/fibo-backend
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -28,9 +26,7 @@ services:
       - redis
 
   worker:
-    build:
-      context: ./worker
-      dockerfile: Dockerfile
+    image: chahardoli/fibo-worker
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -40,9 +36,7 @@ services:
       - backend
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: chahardoli/fibo-frontend
     depends_on:
       - postgres
       - redis
@@ -51,9 +45,7 @@ services:
     stdin_open: true
 
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: chahardoli/fibo-nginx
     depends_on:
       - backend
       - worker
