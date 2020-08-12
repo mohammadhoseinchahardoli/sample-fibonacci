@@ -1,0 +1,64 @@
+---
+version: '3'
+services:
+  postgres:
+    image: library/postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=fibonaccipassword
+
+  redis:
+    image: library/redis:latest
+    command:
+      - --loglevel warning
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=postgres
+      - PGUSER=postgres
+      - PGPASSWORD=fibonaccipassword
+    depends_on:
+      - postgres
+      - redis
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - postgres
+      - redis
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+      - backend
+      - worker
+    stdin_open: true
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+      - worker
+      - frontend
+      - redis
+      - postgres
+    ports:
+    - 80:80
