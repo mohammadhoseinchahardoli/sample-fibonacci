@@ -1,5 +1,6 @@
 language: generic
-sudo: required
+os: linux
+dist: focal
 services:
   - docker
 
@@ -10,7 +11,7 @@ env:
 before_install:
   - docker build -t chahardoli/fibo-frontend:test -f ./frontend/Dockerfile.dev ./frontend
 
-scripts:
+script:
   - docker run -e CI=true chahardoli/fibo-frontend:test npm test
 
 after_success:
