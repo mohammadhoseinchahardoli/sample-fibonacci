@@ -1,0 +1,61 @@
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay
+
+services:
+- docker:dind
+
+before_script:
+- docker info
+
+stages:
+  - Test
+  - Docker Image
+
+Test Frontend Docker Image:
+  stage: Test
+  before_script:
+    - 'docker build -t chahardoli/fibo-frontend:test -f ./frontend/Dockerfile.dev ./frontend'
+  script:
+    - 'docker run -e CI=true chahardoli/fibo-frontend:test npm test'
+
+Backend:
+  stage: Docker Image
+  before_script:
+    - 'docker build -t chahardoli/fibo-backend:latest -t chahardoli/fibo-backend:$CI_COMMIT_SHA -f ./backend/Dockerfile ./backend'
+  script:
+     'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+  after_script:
+    - 'docker push chahardoli/fibo-backend:latest'
+    - 'docker push chahardoli/fibo-backend:$CI_COMMIT_SHA'
+
+Frontend:
+  stage: Docker Image
+  before_script:
+    - 'docker build -t chahardoli/fibo-frontend:latest -t chahardoli/fibo-frontend:$CI_COMMIT_SHA -f ./frontend/Dockerfile ./frontend'
+  script:
+     'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+  after_script:
+    - 'docker push chahardoli/fibo-frontend:latest'
+    - 'docker push chahardoli/fibo-frontend:$CI_COMMIT_SHA'
+
+Worker:
+  stage: Docker Image
+  before_script:
+    - 'docker build -t chahardoli/fibo-worker:latest -t chahardoli/fibo-worker:$CI_COMMIT_SHA -f ./worker/Dockerfile ./worker'
+  script:
+     'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+  after_script:
+    - 'docker push chahardoli/fibo-worker:latest'
+    - 'docker push chahardoli/fibo-worker:$CI_COMMIT_SHA'
+
+Nginx:
+  stage: Docker Image
+  before_script:
+    - 'docker build -t chahardoli/fibo-nginx:latest -t chahardoli/fibo-nginx:$CI_COMMIT_SHA -f ./nginx/Dockerfile ./nginx'
+  script:
+     'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+  after_script:
+    - 'docker push chahardoli/fibo-nginx:latest'
+    - 'docker push chahardoli/fibo-nginx:$CI_COMMIT_SHA'
