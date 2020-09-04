@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fibo-worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: fibonacci
+      env: production
+      location: EN
+      component: worker
+  template:
+    metadata:
+      labels:
+        project: fibonacci
+        env: production
+        location: EN
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: oraserv/fib-worker:latest
+          envFrom:
+            - configMapRef:
+                name: fibo-redis-configmap
