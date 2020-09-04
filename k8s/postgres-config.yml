@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fibo-postgres-configmap
+
+data:
+  PGUSER: postgres
+  PGHOST: postgres-cluster-ip-service
+  PGPORT: '5432'
+  PGDATABASE: postgres

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fibo-redis-configmap
+
+data:
+  REDIS_HOST: redis-cluster-ip-service
+  REDIS_PORT: '6379'

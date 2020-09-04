@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fibo-redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: fibonacci
+      env: production
+      location: EN
+      component: redis
+  template:
+    metadata:
+      labels:
+        project: fibonacci
+        env: production
+        location: EN
+        component: redis
+    spec:
+      containers:
+        - name: redis
+          image: library/redis:latest
+          ports:
+            - containerPort: 6379

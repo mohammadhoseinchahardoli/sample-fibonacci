@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fibo-backend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: fibonacci
+      env: production
+      location: EN
+      component: backend
+  template:
+    metadata:
+      labels:
+        project: fibonacci
+        env: production
+        location: EN
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          image: oraserv/fib-backend:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: fibo-redis-configmap
+            - configMapRef:
+                name: fibo-postgres-configmap
+            - secretRef:
+                name: fibo-postgres-secret
